@@ -1,0 +1,194 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inicio - Movie Recommendations{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <!-- Hero Section -->
+        <div class="jumbotron bg-dark text-white p-5 rounded mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h1 class="display-4">Descubre tu próxima película favorita</h1>
+            <p class="lead">Explora, puntúa y recomienda películas a tus amigos y grupos de cine</p>
+            {% if not app.user %}
+                <hr class="my-4">
+                <p>Únete a nuestra comunidad cinéfila</p>
+                <a class="btn btn-primary btn-lg" href="{{ path('app_register') }}" role="button">
+                    <i class="bi bi-person-plus"></i> Registrarse
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Search Bar -->
+        <div class="row mb-5">
+            <div class="col-md-8 mx-auto">
+                <form action="{{ path('movie_search') }}" method="get" class="search-box mx-auto">
+                    <div class="input-group input-group-lg">
+                        <input type="text" name="q" class="form-control" placeholder="Buscar películas..." required>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recent Movies -->
+        <div class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2><i class="bi bi-stars"></i> Películas Recientes</h2>
+                <a href="{{ path('movie_index') }}" class="btn btn-outline-light">Ver todas</a>
+            </div>
+            <div class="row">
+                {% for movie in recentMovies %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
+                            {% if movie.poster %}
+                                <img src="{{ asset('uploads/posters/' ~ movie.poster) }}" class="card-img-top movie-poster" alt="{{ movie.titulo }}">
+                            {% else %}
+                                <div class="card-img-top movie-poster bg-secondary d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-film" style="font-size: 4rem;"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ movie.titulo }}</h5>
+                                <p class="card-text">
+                                    <span class="badge bg-primary">{{ movie.genero }}</span>
+                                    <span class="badge bg-secondary">{{ movie.anio }}</span>
+                                </p>
+                                {% if movie.averageRating %}
+                                    <div class="rating-stars mb-2">
+                                        {% for i in 1..5 %}
+                                            <i class="bi bi-star{% if i <= movie.averageRating %}-fill{% endif %}"></i>
+                                        {% endfor %}
+                                        <small class="text-muted">({{ movie.averageRating }})</small>
+                                    </div>
+                                {% endif %}
+                                <a href="{{ path('movie_show', {'id': movie.id}) }}" class="btn btn-primary btn-sm w-100">
+                                    <i class="bi bi-eye"></i> Ver detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> No hay películas disponibles aún.
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if is_granted('ROLE_USER') %}
+        <!-- User Recommendations -->
+        <div class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2><i class="bi bi-heart"></i> Recomendaciones para ti</h2>
+                <a href="{{ path('recommendation_index') }}" class="btn btn-outline-light">Ver todas</a>
+            </div>
+            <div class="row">
+                {% if recommendations is defined and recommendations|length > 0 %}
+                    {% for recommendation in recommendations|slice(0, 4) %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ recommendation.movie.titulo }}</h5>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="bi bi-person"></i> Recomendado por {{ recommendation.fromUser.nombreCompleto }}
+                                        </small>
+                                    </p>
+                                    {% if recommendation.comentario %}
+                                        <p class="card-text">"{{ recommendation.comentario }}"</p>
+                                    {% endif %}
+                                    <a href="{{ path('movie_show', {'id': recommendation.movie.id}) }}" class="btn btn-primary btn-sm">
+                                        Ver película
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="bi bi-inbox"></i> No tienes recomendaciones nuevas.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Popular Groups -->
+        <div class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2><i class="bi bi-people"></i> Grupos Populares</h2>
+                <a href="{{ path('group_index') }}" class="btn btn-outline-light">Ver todos</a>
+            </div>
+            <div class="row">
+                {% if groups is defined and groups|length > 0 %}
+                    {% for group in groups|slice(0, 3) %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-people-fill text-primary"></i> 
+                                        {{ group.nombre }}
+                                    </h5>
+                                    <p class="card-text">{{ group.descripcion|slice(0, 100) }}{% if group.descripcion|length > 100 %}...{% endif %}</p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="bi bi-people"></i> {{ group.membersCount }} miembros
+                                        </small>
+                                    </p>
+                                    <a href="{{ path('group_show', {'id': group.id}) }}" class="btn btn-primary btn-sm w-100">
+                                        <i class="bi bi-eye"></i> Ver grupo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> No hay grupos disponibles aún.
+                            <a href="{{ path('group_new') }}" class="alert-link">¡Crea el primero!</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Features Section -->
+        <div class="row text-center mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <i class="bi bi-search" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <h4 class="mt-3">Explora</h4>
+                        <p class="card-text">Descubre miles de películas de todos los géneros</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <i class="bi bi-star" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <h4 class="mt-3">Puntúa</h4>
+                        <p class="card-text">Califica y deja reseñas de tus películas favoritas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <i class="bi bi-share" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <h4 class="mt-3">Comparte</h4>
+                        <p class="card-text">Recomienda películas a amigos y grupos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

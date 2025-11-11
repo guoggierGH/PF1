@@ -1,0 +1,55 @@
+{# Componente reutilizable para mostrar tarjeta de grupo #}
+<div class="card h-100">
+    <div class="card-body d-flex flex-column">
+        <h5 class="card-title">
+            <i class="bi bi-people-fill text-primary"></i> 
+            {{ group.nombre }}
+        </h5>
+        
+        {% if group.descripcion %}
+            <p class="card-text flex-grow-1">
+                {{ group.descripcion|length > 150 ? group.descripcion|slice(0, 150) ~ '...' : group.descripcion }}
+            </p>
+        {% endif %}
+        
+        <div class="mb-3">
+            <small class="text-muted">
+                <i class="bi bi-people"></i> {{ group.members|length }} miembros
+            </small>
+            <br>
+            <small class="text-muted">
+                <i class="bi bi-calendar"></i> Creado el {{ group.createdAt|date('d/m/Y') }}
+            </small>
+        </div>
+
+        <div class="mt-auto">
+            {% if isMember is defined and isMember %}
+                {# Usuario es miembro #}
+                <a href="{{ path('group_show', {'id': group.id}) }}" 
+                   class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-box-arrow-in-right"></i> Entrar al grupo
+                </a>
+                <form method="post" 
+                      action="{{ path('group_leave', {'id': group.id}) }}"
+                      onsubmit="return confirm('¿Estás seguro de salir del grupo?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('leave' ~ group.id) }}">
+                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                        <i class="bi bi-box-arrow-right"></i> Salir del grupo
+                    </button>
+                </form>
+            {% else %}
+                {# Usuario NO es miembro #}
+                <a href="{{ path('group_show', {'id': group.id}) }}" 
+                   class="btn btn-outline-primary w-100 mb-2">
+                    <i class="bi bi-eye"></i> Ver detalles
+                </a>
+                <form method="post" action="{{ path('group_join', {'id': group.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('join' ~ group.id) }}">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-plus-circle"></i> Unirse al grupo
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>

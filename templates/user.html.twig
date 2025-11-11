@@ -1,0 +1,214 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mi Perfil - Movie Recommendations{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-3">
+        <!-- User Card -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                     style="width: 100px; height: 100px;">
+                    <i class="bi bi-person-fill" style="font-size: 3rem;"></i>
+                </div>
+                <h4 class="mb-1">{{ app.user.nombreCompleto }}</h4>
+                <p class="text-muted mb-3">{{ app.user.email }}</p>
+                <a href="{{ path('user_edit') }}" class="btn btn-primary w-100">
+                    <i class="bi bi-pencil"></i> Editar Perfil
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Estadísticas</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-film"></i> Películas vistas</span>
+                    <strong>{{ app.user.viewedMovies|length }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-star"></i> Reseñas escritas</span>
+                    <strong>{{ app.user.reviews|length }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-people"></i> Grupos</span>
+                    <strong>{{ app.user.groups|length }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span><i class="bi bi-share"></i> Recomendaciones enviadas</span>
+                    <strong>{{ app.user.sentRecommendations|length }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="viewed-tab" data-bs-toggle="tab" 
+                        data-bs-target="#viewed" type="button">
+                    <i class="bi bi-check-circle"></i> Películas Vistas
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" 
+                        data-bs-target="#reviews" type="button">
+                    <i class="bi bi-star"></i> Mis Reseñas
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="recommendations-tab" data-bs-toggle="tab" 
+                        data-bs-target="#recommendations" type="button">
+                    <i class="bi bi-envelope"></i> Recomendaciones
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="profileTabsContent">
+            <!-- Viewed Movies Tab -->
+            <div class="tab-pane fade show active" id="viewed">
+                <div class="row">
+                    {% if app.user.viewedMovies is not empty %}
+                        {% for movie in app.user.viewedMovies %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100">
+                                    {% if movie.poster %}
+                                        <img src="{{ asset('uploads/posters/' ~ movie.poster) }}" 
+                                             class="card-img-top" 
+                                             style="height: 300px; object-fit: cover;"
+                                             alt="{{ movie.titulo }}">
+                                    {% else %}
+                                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" 
+                                             style="height: 300px;">
+                                            <i class="bi bi-film" style="font-size: 3rem;"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ movie.titulo }}</h6>
+                                        <p class="card-text">
+                                            <span class="badge bg-primary">{{ movie.genero }}</span>
+                                            <span class="badge bg-secondary">{{ movie.anio }}</span>
+                                        </p>
+                                        <a href="{{ path('movie_show', {'id': movie.id}) }}" 
+                                           class="btn btn-sm btn-primary w-100">
+                                            Ver detalles
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Aún no has marcado películas como vistas.
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reviews Tab -->
+            <div class="tab-pane fade" id="reviews">
+                {% if app.user.reviews is not empty %}
+                    {% for review in app.user.reviews %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="mb-1">{{ review.movie.titulo }}</h5>
+                                        <div class="rating-stars mb-2">
+                                            {% for i in 1..5 %}
+                                                <i class="bi bi-star{% if i <= review.puntuacion %}-fill{% endif %}"></i>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">{{ review.createdAt|date('d/m/Y') }}</small>
+                                </div>
+                                {% if review.comentario %}
+                                    <p class="card-text mt-2">{{ review.comentario }}</p>
+                                {% endif %}
+                                <a href="{{ path('movie_show', {'id': review.movie.id}) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    Ver película
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> Aún no has escrito ninguna reseña.
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Recommendations Tab -->
+            <div class="tab-pane fade" id="recommendations">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3">
+                            <i class="bi bi-inbox"></i> Recibidas
+                        </h5>
+                        {% if app.user.receivedRecommendations is not empty %}
+                            {% for recommendation in app.user.receivedRecommendations %}
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ recommendation.movie.titulo }}</h6>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                De: {{ recommendation.fromUser.nombreCompleto }}
+                                            </small>
+                                        </p>
+                                        {% if recommendation.comentario %}
+                                            <p class="card-text"><em>"{{ recommendation.comentario }}"</em></p>
+                                        {% endif %}
+                                        <a href="{{ path('movie_show', {'id': recommendation.movie.id}) }}" 
+                                           class="btn btn-sm btn-primary">
+                                            Ver película
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                No tienes recomendaciones recibidas.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="mb-3">
+                            <i class="bi bi-send"></i> Enviadas
+                        </h5>
+                        {% if app.user.sentRecommendations is not empty %}
+                            {% for recommendation in app.user.sentRecommendations %}
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ recommendation.movie.titulo }}</h6>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                Para: {{ recommendation.toUser.nombreCompleto }}
+                                            </small>
+                                        </p>
+                                        {% if recommendation.comentario %}
+                                            <p class="card-text"><em>"{{ recommendation.comentario }}"</em></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                No has enviado recomendaciones.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

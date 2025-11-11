@@ -1,0 +1,152 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Grupos - Movie Recommendations{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-people"></i> Grupos de Cine</h1>
+            <a href="{{ path('group_new') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Crear Grupo
+            </a>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4" id="groupTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="my-groups-tab" data-bs-toggle="tab" 
+                        data-bs-target="#my-groups" type="button">
+                    <i class="bi bi-collection"></i> Mis Grupos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="all-groups-tab" data-bs-toggle="tab" 
+                        data-bs-target="#all-groups" type="button">
+                    <i class="bi bi-search"></i> Explorar Grupos
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="groupTabsContent">
+            <!-- My Groups Tab -->
+            <div class="tab-pane fade show active" id="my-groups">
+                <div class="row">
+                    {% if myGroups is not empty %}
+                        {% for group in myGroups %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-people-fill text-primary"></i> {{ group.nombre }}
+                                        </h5>
+                                        <p class="card-text">{{ group.descripcion|slice(0, 100) }}...</p>
+                                        
+                                        <div class="mb-3">
+                                            <small class="text-muted">
+                                                <i class="bi bi-people"></i> {{ group.membersCount }} miembros
+                                            </small>
+                                            <br>
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar"></i> Creado el {{ group.createdAt|date('d/m/Y') }}
+                                            </small>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ path('group_show', {'id': group.id}) }}" 
+                                               class="btn btn-primary">
+                                                <i class="bi bi-box-arrow-in-right"></i> Entrar al grupo
+                                            </a>
+                                            <form method="post" 
+                                                  action="{{ path('group_leave', {'id': group.id}) }}"
+                                                  onsubmit="return confirm('¿Estás seguro de salir del grupo?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('leave' ~ group.id) }}">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                                    <i class="bi bi-box-arrow-right"></i> Salir del grupo
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info text-center">
+                                <i class="bi bi-info-circle"></i> No perteneces a ningún grupo aún.
+                                <br>
+                                <a href="#all-groups" data-bs-toggle="tab" class="alert-link">
+                                    Explora grupos disponibles
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- All Groups Tab -->
+            <div class="tab-pane fade" id="all-groups">
+                <!-- Search -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="get" action="{{ path('group_index') }}">
+                            <div class="input-group">
+                                <input type="text" 
+                                       name="search" 
+                                       class="form-control" 
+                                       placeholder="Buscar grupos..." 
+                                       value="{{ app.request.query.get('search') }}">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search"></i> Buscar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    {% if availableGroups is not empty %}
+                        {% for group in availableGroups %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="bi bi-people"></i> {{ group.nombre }}
+                                        </h5>
+                                        <p class="card-text">{{ group.descripcion|slice(0, 100) }}...</p>
+                                        
+                                        <div class="mb-3">
+                                            <small class="text-muted">
+                                                <i class="bi bi-people"></i> {{ group.membersCount }} miembros
+                                            </small>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ path('group_show', {'id': group.id}) }}" 
+                                               class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i> Ver detalles
+                                            </a>
+                                            <form method="post" action="{{ path('group_join', {'id': group.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('join' ~ group.id) }}">
+                                                <button type="submit" class="btn btn-success w-100">
+                                                    <i class="bi bi-plus-circle"></i> Unirse al grupo
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info text-center">
+                                <i class="bi bi-info-circle"></i> No hay grupos disponibles.
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

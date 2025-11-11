@@ -1,0 +1,228 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panel de Administración - Movie Recommendations{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-speedometer2"></i> Panel de Administración
+        </h1>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-white-50">Películas</h6>
+                                <h2 class="card-title mb-0">{{ stats.totalMovies }}</h2>
+                            </div>
+                            <i class="bi bi-film" style="font-size: 3rem; opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a href="{{ path('movie_index') }}" class="text-white text-decoration-none">
+                            Ver todas <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-white-50">Usuarios</h6>
+                                <h2 class="card-title mb-0">{{ stats.totalUsers }}</h2>
+                            </div>
+                            <i class="bi bi-people" style="font-size: 3rem; opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a href="{{ path('admin_users') }}" class="text-white text-decoration-none">
+                            Gestionar <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-white-50">Reseñas</h6>
+                                <h2 class="card-title mb-0">{{ stats.totalReviews }}</h2>
+                            </div>
+                            <i class="bi bi-star" style="font-size: 3rem; opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <span class="text-white">Total de reseñas</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-white-50">Grupos</h6>
+                                <h2 class="card-title mb-0">{{ stats.totalGroups }}</h2>
+                            </div>
+                            <i class="bi bi-collection" style="font-size: 3rem; opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a href="{{ path('group_index') }}" class="text-white text-decoration-none">
+                            Ver grupos <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightning"></i> Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('movie_new') }}" class="btn btn-primary w-100 btn-lg">
+                            <i class="bi bi-plus-circle"></i><br>
+                            <small>Agregar Película</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('admin_users') }}" class="btn btn-success w-100 btn-lg">
+                            <i class="bi bi-person-plus"></i><br>
+                            <small>Gestionar Usuarios</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('movie_index') }}" class="btn btn-warning w-100 btn-lg">
+                            <i class="bi bi-pencil"></i><br>
+                            <small>Editar Películas</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ path('admin_reports') }}" class="btn btn-info w-100 btn-lg">
+                            <i class="bi bi-bar-chart"></i><br>
+                            <small>Ver Reportes</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock-history"></i> Películas Recientes
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            {% for movie in recentMovies %}
+                                <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ movie.titulo }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ movie.genero }} • {{ movie.anio }}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <a href="{{ path('movie_show', {'id': movie.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            Ver
+                                        </a>
+                                        <a href="{{ path('movie_edit', {'id': movie.id}) }}" 
+                                           class="btn btn-sm btn-outline-warning">
+                                            Editar
+                                        </a>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="list-group-item bg-transparent">
+                                    <p class="text-muted mb-0">No hay películas recientes</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-star"></i> Películas Mejor Valoradas
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            {% for movie in topRatedMovies %}
+                                <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ movie.titulo }}</strong>
+                                        <br>
+                                        <div class="rating-stars">
+                                            {% for i in 1..5 %}
+                                                <i class="bi bi-star{% if i <= movie.averageRating %}-fill{% endif %}"></i>
+                                            {% endfor %}
+                                            <small class="text-muted">({{ movie.averageRating }})</small>
+                                        </div>
+                                    </div>
+                                    <a href="{{ path('movie_show', {'id': movie.id}) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        Ver
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="list-group-item bg-transparent">
+                                    <p class="text-muted mb-0">No hay valoraciones disponibles</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Genre Distribution -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart"></i> Distribución por Género
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for genreData in genreDistribution %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-dark">
+                                <div class="card-body text-center">
+                                    <h3 class="text-primary">{{ genreData.total }}</h3>
+                                    <p class="mb-0">{{ genreData.genero }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

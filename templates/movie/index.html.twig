@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Películas - Movie Recommendations{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-film"></i> Catálogo de Películas</h1>
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('movie_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nueva Película
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" action="{{ path('movie_index') }}">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" 
+                                   name="search" 
+                                   class="form-control" 
+                                   placeholder="Buscar por título..." 
+                                   value="{{ app.request.query.get('search') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="genre" class="form-select">
+                                <option value="">Todos los géneros</option>
+                                {% for genre in genres %}
+                                    <option value="{{ genre }}" 
+                                            {% if app.request.query.get('genre') == genre %}selected{% endif %}>
+                                        {{ genre }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="year" class="form-select">
+                                <option value="">Todos los años</option>
+                                {% for year in 2024..1950 %}
+                                    <option value="{{ year }}" 
+                                            {% if app.request.query.get('year') == year %}selected{% endif %}>
+                                        {{ year }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-filter"></i> Filtrar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Movies Grid -->
+        <div class="row">
+            {% for movie in movies %}
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        {% if movie.poster %}
+                            <img src="{{ asset('uploads/posters/' ~ movie.poster) }}" 
+                                 class="card-img-top movie-poster" 
+                                 alt="{{ movie.titulo }}">
+                        {% else %}
+                            <div class="card-img-top movie-poster bg-secondary d-flex align-items-center justify-content-center">
+                                <i class="bi bi-film" style="font-size: 4rem;"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ movie.titulo }}</h5>
+                            
+                            <div class="mb-2">
+                                <span class="badge bg-primary">{{ movie.genero }}</span>
+                                <span class="badge bg-secondary">{{ movie.anio }}</span>
+                            </div>
+                            
+                            {% if movie.director %}
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="bi bi-camera-reels"></i> {{ movie.director }}
+                                    </small>
+                                </p>
+                            {% endif %}
+                            
+                            {% if movie.averageRating %}
+                                <div class="rating-stars mb-2">
+                                    {% for i in 1..5 %}
+                                        <i class="bi bi-star{% if i <= movie.averageRating %}-fill{% endif %}"></i>
+                                    {% endfor %}
+                                    <small class="text-muted">({{ movie.averageRating }})</small>
+                                </div>
+                            {% else %}
+                                <p class="text-muted"><small>Sin calificaciones</small></p>
+                            {% endif %}
+                            
+                            <p class="card-text flex-grow-1">
+                                {{ movie.sinopsis|slice(0, 100) }}...
+                            </p>
+                            
+                            <div class="mt-auto">
+                                <a href="{{ path('movie_show', {'id': movie.id}) }}" 
+                                   class="btn btn-primary btn-sm w-100">
+                                    <i class="bi bi-eye"></i> Ver detalles
+                                </a>
+                                
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <div class="btn-group w-100 mt-2">
+                                        <a href="{{ path('movie_edit', {'id': movie.id}) }}" 
+                                           class="btn btn-sm btn-warning">
+                                            <i class="bi bi-pencil"></i> Editar
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-danger"
+                                                onclick="if(confirm('¿Estás seguro?')) { document.getElementById('delete-form-{{ movie.id }}').submit(); }">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </div>
+                                    <form id="delete-form-{{ movie.id }}" 
+                                          method="post" 
+                                          action="{{ path('movie_delete', {'id': movie.id}) }}" 
+                                          style="display: none;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ movie.id) }}">
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle"></i> No se encontraron películas.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{{ form_start(form) }}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Información de la Película</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    {{ form_label(form.titulo, 'Título', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.titulo, {'attr': {'class': 'form-control', 'placeholder': 'Ej: El Padrino'}}) }}
+                    {{ form_errors(form.titulo) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.sinopsis, 'Sinopsis', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.sinopsis, {'attr': {'class': 'form-control', 'rows': 5, 'placeholder': 'Descripción de la película...'}}) }}
+                    {{ form_errors(form.sinopsis) }}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.genero, 'Género', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.genero, {'attr': {'class': 'form-select'}}) }}
+                        {{ form_errors(form.genero) }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.anio, 'Año', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.anio, {'attr': {'class': 'form-control', 'placeholder': '2024'}}) }}
+                        {{ form_errors(form.anio) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.director, 'Director', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.director, {'attr': {'class': 'form-control', 'placeholder': 'Nombre del director'}}) }}
+                        {{ form_errors(form.director) }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.duracion, 'Duración (minutos)', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.duracion, {'attr': {'class': 'form-control', 'placeholder': '120'}}) }}
+                        {{ form_errors(form.duracion) }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.poster, 'Póster', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.poster, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.poster) }}
+                    <small class="form-text text-muted">
+                        Formatos permitidos: JPG, PNG. Tamaño máximo: 2MB
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card sticky-top" style="top: 100px;">
+            <div class="card-header">
+                <h5 class="mb-0">Acciones</h5>
+            </div>
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-check-circle"></i> {{ button_label|default('Guardar') }}
+                </button>
+                <a href="{{ path('movie_index') }}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ form_end(form) }}

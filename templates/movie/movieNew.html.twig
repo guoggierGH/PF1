@@ -1,0 +1,17 @@
+{# movieNew.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva Película - Movie Recommendations{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-plus-circle"></i> Nueva Película
+        </h1>
+
+        {{ include('movie/_form.html.twig', {'button_label': 'Crear Película'}) }}
+    </div>
+</div>
+{% endblock %}
+
